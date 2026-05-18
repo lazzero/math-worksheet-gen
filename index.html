@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Worksheet Generator</title>
+  <link rel="preconnect" href="https://api.fontshare.com">
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+  <style>
+    :root,[data-theme="light"]{--text-sm:clamp(.875rem,.83rem + .2vw,1rem);--text-base:clamp(1rem,.96rem + .2vw,1.125rem);--text-lg:clamp(1.125rem,1rem + .5vw,1.4rem);--text-xl:clamp(1.45rem,1.2rem + 1vw,2rem);--space-2:.5rem;--space-3:.75rem;--space-4:1rem;--space-5:1.25rem;--space-6:1.5rem;--space-8:2rem;--radius-sm:.5rem;--radius-md:.9rem;--radius-lg:1.25rem;--radius-full:9999px;--color-bg:#f7f6f2;--color-surface:#fbfaf7;--color-surface-2:#f0ede7;--color-border:rgba(40,37,29,.12);--color-divider:rgba(40,37,29,.08);--color-text:#28251d;--color-text-muted:#6e6a62;--color-primary:#0f6c74;--color-primary-hover:#0c565d;--color-primary-soft:rgba(15,108,116,.1);--shadow-sm:0 2px 10px rgba(53,47,35,.06);--shadow-md:0 14px 34px rgba(53,47,35,.1);--font-body:'Satoshi','Inter',system-ui,sans-serif;--transition:180ms cubic-bezier(.16,1,.3,1);--columns:3}
+    [data-theme="dark"]{--color-bg:#181715;--color-surface:#22211e;--color-surface-2:#2a2824;--color-border:rgba(230,226,218,.12);--color-divider:rgba(230,226,218,.08);--color-text:#ece7de;--color-text-muted:#bdb6ab;--color-primary:#78b5bc;--color-primary-hover:#92c7cd;--color-primary-soft:rgba(120,181,188,.14);--shadow-sm:0 2px 10px rgba(0,0,0,.24);--shadow-md:0 14px 34px rgba(0,0,0,.36)}
+    *{box-sizing:border-box}html{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}body{margin:0;min-height:100vh;font-family:var(--font-body);font-size:var(--text-base);line-height:1.5;color:var(--color-text);background:radial-gradient(circle at top right,rgba(15,108,116,.1),transparent 28%),radial-gradient(circle at top left,rgba(241,185,38,.1),transparent 26%),var(--color-bg)}
+    a,button,input,select{font:inherit}button,input,select{transition:background var(--transition),border-color var(--transition),color var(--transition),box-shadow var(--transition),transform var(--transition)}
+    .skip-link{position:absolute;left:1rem;top:-3rem;background:var(--color-primary);color:#fff;padding:.75rem 1rem;border-radius:var(--radius-sm);z-index:100;text-decoration:none}.skip-link:focus{top:1rem}
+    .page{max-width:1340px;margin:0 auto;padding:var(--space-6);display:grid;gap:var(--space-6)}
+    .hero{display:flex;align-items:flex-start;justify-content:space-between;gap:var(--space-4);padding:var(--space-5) 0 var(--space-2)}
+    .brand{display:flex;gap:var(--space-4);align-items:center}.logo{width:3.5rem;height:3.5rem;padding:.8rem;border-radius:1rem;background:linear-gradient(135deg,var(--color-primary-soft),rgba(241,185,38,.18));color:var(--color-primary);box-shadow:var(--shadow-sm);flex:0 0 auto}
+    .hero h1{margin:0 0 .35rem;font-size:var(--text-xl);line-height:1.1;letter-spacing:-.03em}.hero p{margin:0;max-width:68ch;color:var(--color-text-muted)}
+    .hero-actions{display:flex;gap:.75rem;align-items:center;flex-wrap:wrap}
+    .icon-toggle{min-width:3rem;min-height:3rem;display:inline-flex;align-items:center;justify-content:center;border:1px solid var(--color-border);border-radius:var(--radius-full);background:var(--color-surface);color:var(--color-text);box-shadow:var(--shadow-sm);padding:0 .9rem;font-weight:700}
+    .layout{display:grid;grid-template-columns:minmax(320px,410px) minmax(0,1fr);gap:var(--space-6);align-items:start}.panel{background:color-mix(in srgb,var(--color-surface) 92%,transparent);backdrop-filter:blur(10px);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-md)}
+    .controls{padding:var(--space-5);position:sticky;top:1rem}.controls h2,.worksheet h2{margin:0 0 var(--space-4);font-size:var(--text-lg)}
+    .section{display:grid;gap:var(--space-3);padding-bottom:var(--space-4);margin-bottom:var(--space-4);border-bottom:1px solid var(--color-divider)}.section:last-of-type{padding-bottom:0;margin-bottom:var(--space-4);border-bottom:0}
+    .section-title{font-size:var(--text-sm);font-weight:700;letter-spacing:.02em;text-transform:uppercase;color:var(--color-text-muted);margin-bottom:.1rem}
+    .checkbox-grid,.two-col,.op-grid{display:grid;gap:var(--space-3)}.checkbox-grid,.op-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .choice,.select-wrap,.field{background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md)}.choice{overflow:hidden}.choice label{display:flex;align-items:center;gap:.75rem;padding:.95rem 1rem;cursor:pointer;min-height:3rem;font-weight:500}.choice input{width:1.1rem;height:1.1rem;accent-color:var(--color-primary);flex:0 0 auto}
+    .field,.select-wrap{padding:.8rem .95rem;display:grid;gap:.35rem}.field label,.select-wrap label{font-size:var(--text-sm);font-weight:500;color:var(--color-text-muted)}.field input,.select-wrap select{border:0;outline:0;width:100%;background:transparent;color:var(--color-text);font-size:var(--text-base);min-height:2rem}
+    .buttons{display:grid;gap:var(--space-3)}.btn-row{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3)}
+    .btn{min-height:3rem;border-radius:var(--radius-md);border:1px solid transparent;padding:.9rem 1rem;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:.5rem}.btn:focus-visible,.icon-toggle:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px}.btn-primary{background:var(--color-primary);color:#fff;box-shadow:var(--shadow-sm)}.btn-primary:hover{background:var(--color-primary-hover)}.btn-secondary{background:var(--color-surface);color:var(--color-text);border-color:var(--color-border)}.btn-secondary:hover,.icon-toggle:hover{background:var(--color-surface-2)}
+    .hint,.mini,.status{margin:0;font-size:var(--text-sm);color:var(--color-text-muted)}.status{min-height:1.4em}
+    .worksheets{display:grid;gap:var(--space-5)}
+    .worksheet{padding:var(--space-5);display:grid;gap:var(--space-4)}.worksheet-head{display:flex;justify-content:space-between;align-items:start;gap:var(--space-4);border-bottom:1px solid var(--color-divider);padding-bottom:var(--space-4)}.worksheet-title{display:flex;align-items:center;gap:.6rem}.worksheet-title h2{margin:0}.worksheet-title h2[contenteditable="true"]{outline:2px solid color-mix(in srgb,var(--color-primary) 55%,transparent);outline-offset:4px;border-radius:var(--radius-sm)}.worksheet-actions{display:flex;align-items:center;gap:.75rem;flex:0 0 auto}.inline-toggle{display:inline-flex;align-items:center;gap:.55rem;padding:.55rem .7rem;border-radius:var(--radius-full);border:1px solid var(--color-border);background:var(--color-surface);font-size:var(--text-sm);font-weight:600;color:var(--color-text)}.inline-toggle input{width:1.05rem;height:1.05rem;accent-color:var(--color-primary)}.title-edit{min-width:2.25rem;min-height:2.25rem;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--radius-full);border:1px solid var(--color-border);background:var(--color-surface);color:var(--color-text);box-shadow:var(--shadow-sm);padding:0}.title-edit:hover{background:var(--color-surface-2)}.title-edit svg{width:1.05rem;height:1.05rem}.worksheet-meta{display:flex;flex-wrap:wrap;gap:.65rem}.chip{padding:.45rem .8rem;border-radius:var(--radius-full);background:var(--color-primary-soft);color:var(--color-primary);font-size:var(--text-sm);font-weight:700}.print-note{margin:0;color:var(--color-text-muted);font-size:var(--text-sm)}.label-row{display:flex;align-items:center;gap:.45rem;position:relative}.tip{width:1.35rem;height:1.35rem;border-radius:var(--radius-full);border:1px solid var(--color-border);background:var(--color-surface-2);color:var(--color-text-muted);font-size:.8rem;line-height:1;display:inline-flex;align-items:center;justify-content:center;padding:0;flex:0 0 auto}.tip:hover{background:var(--color-surface)}.tip:focus-visible{outline:2px solid color-mix(in srgb,var(--color-primary) 55%,transparent);outline-offset:3px}.tip-content{position:absolute;left:0;top:100%;margin-top:.55rem;width:min(24rem,calc(100vw - 3rem));padding:.65rem .75rem;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);font-size:var(--text-sm);color:var(--color-text);display:none;z-index:30}.tip:hover + .tip-content,.tip:focus + .tip-content,.tip:focus-visible + .tip-content{display:block}
+    .student-line{display:grid;grid-template-columns:1fr 1fr;gap:var(--space-3);margin-top:var(--space-2)}.line-box{display:flex;align-items:center;gap:.65rem;min-height:2.5rem;padding:.75rem .9rem;background:var(--color-surface);border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-sm);color:var(--color-text-muted)}.write-line{flex:1;border-bottom:1.5px solid var(--color-border);height:.9rem}
+    .grid{--problem-font:clamp(1rem,.9rem + .85vw,1.4rem);display:grid;grid-template-columns:repeat(var(--columns),minmax(0,1fr));gap:var(--space-4);align-items:stretch}.problem{background:linear-gradient(180deg,var(--color-surface),color-mix(in srgb,var(--color-surface) 75%,var(--color-surface-2)));border:1px solid var(--color-border);border-radius:var(--radius-md);padding:.85rem .9rem .95rem;min-height:5.2rem;display:flex;align-items:center;justify-content:center;text-align:center}.problem-inner{--scale:1;display:flex;align-items:center;justify-content:center;gap:.35em;flex-wrap:nowrap;white-space:nowrap;font-size:var(--problem-font);font-weight:700;line-height:1.3;transform:scale(var(--scale));transform-origin:center}.num{min-width:1.2em;text-align:center}.operator,.equals{color:var(--color-primary)}.blank{--slot-ch:4;display:inline-flex;align-items:center;justify-content:center;width:calc(var(--slot-ch) * .62em + 1.05rem);min-width:2.1em;height:1.75em;border:2px dashed color-mix(in srgb,var(--color-primary) 48%,var(--color-text-muted));border-radius:.65rem;background:linear-gradient(180deg,rgba(255,255,255,.45),rgba(255,255,255,0));color:transparent}.empty-state{padding:3rem 1rem;text-align:center;color:var(--color-text-muted);background:var(--color-surface);border-radius:var(--radius-md);border:1px dashed var(--color-border)}.footnote{font-size:var(--text-sm);color:var(--color-text-muted);margin:0}
+    @media (max-width:980px){.layout{grid-template-columns:1fr}.controls{position:static}}
+    @media (max-width:700px){.page{padding:var(--space-4)}.hero,.worksheet-head{flex-direction:column}.checkbox-grid,.btn-row,.student-line,.op-grid{grid-template-columns:1fr}.grid{grid-template-columns:repeat(min(2,var(--columns)),minmax(0,1fr))}}
+    @media (max-width:480px){.grid{grid-template-columns:1fr}.hero-actions{width:100%;justify-content:flex-start}}
+    @page{size:A4 portrait;margin:10mm}
+    @media print{body{background:#fff;color:#000}.page{max-width:none;padding:0;display:block}.hero,.controls,.icon-toggle,.no-print{display:none!important}.panel,.worksheet{border:0;box-shadow:none;background:#fff;padding:0}.worksheet{break-after:page;margin-bottom:0}.worksheet:last-child{break-after:auto}.worksheet-head{padding-bottom:5mm;margin-bottom:5mm;border-bottom:1px solid rgba(0,0,0,.2)}.worksheet-meta{display:none}.student-line{margin-top:4mm}.line-box{background:#fff;border-color:rgba(0,0,0,.16);color:rgba(0,0,0,.75)}.grid{gap:4mm}.problem{min-height:16mm;break-inside:avoid;border-color:rgba(0,0,0,.14);background:#fff}.problem-inner{font-size:15pt}.blank{border-color:rgba(0,0,0,.55);background:#fff}.footnote{color:rgba(0,0,0,.72)}}
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#worksheets">Перейти к листам</a>
+  <main class="page">
+    <header class="hero" aria-label="Описание генератора">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="6" y="6" width="52" height="52" rx="16" stroke="currentColor" stroke-width="3"></rect><path d="M20 24h24M20 40h24M24 20v24M40 20v24" stroke="currentColor" stroke-width="3" stroke-linecap="round"></path><path d="M14 32h36" stroke="currentColor" stroke-width="5" stroke-linecap="round"></path></svg>
+        <div>
+          <h1 data-i18n="heroTitle">Генератор школьных примеров</h1>
+          <p data-i18n="heroText">Можно выбрать язык интерфейса, тему, диапазоны по операциям и сразу сгенерировать несколько разных страниц для целого класса.</p>
+        </div>
+      </div>
+      <div class="hero-actions no-print">
+        <button class="icon-toggle" type="button" id="langBtn" aria-label="Switch language">RU</button>
+        <button class="icon-toggle" type="button" id="themeBtn" aria-label="Переключить тему"><span aria-hidden="true">☾</span></button>
+      </div>
+    </header>
+
+    <section class="layout">
+      <aside class="panel controls no-print" aria-label="Параметры генерации">
+        <h2 data-i18n="settingsTitle">Параметры</h2>
+
+        <div class="section">
+          <div class="section-title" data-i18n="operationsTitle">Операции</div>
+          <div class="checkbox-grid">
+            <div class="choice"><label><input type="checkbox" name="operation" value="add" checked><span data-i18n="opAdd">Сложение</span></label></div>
+            <div class="choice"><label><input type="checkbox" name="operation" value="sub" checked><span data-i18n="opSub">Вычитание</span></label></div>
+            <div class="choice"><label><input type="checkbox" name="operation" value="mul" checked><span data-i18n="opMul">Умножение</span></label></div>
+            <div class="choice"><label><input type="checkbox" name="operation" value="div" checked><span data-i18n="opDiv">Деление</span></label></div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-title" data-i18n="structureTitle">Структура примера</div>
+          <div class="select-wrap"><label for="termCount" data-i18n="termCountLabel">Количество чисел в выражении</label><select id="termCount"><option value="2" data-i18n="terms2">2 числа</option><option value="3" data-i18n="terms3">3 числа</option><option value="mix" data-i18n="termsMix" selected>Случайно (2 или 3)</option></select></div>
+          <div class="choice"><label><input type="checkbox" id="allowNegative"><span data-i18n="allowNegative">Разрешить отрицательный ответ</span></label></div>
+          <div class="select-wrap"><label for="blankMode" data-i18n="blankModeLabel">Где пустое место</label><select id="blankMode"><option value="random" data-i18n="blankModeRandom">Случайно (любое место)</option><option value="answer" data-i18n="blankModeAnswer">Только ответ</option><option value="operand" data-i18n="blankModeOperand">Случайно (только числа)</option><option value="first" data-i18n="blankModeFirst">Первое число</option><option value="middle" data-i18n="blankModeMiddle">Среднее число</option></select></div>
+          <p class="hint" data-i18n="blankModeHint">Выберите, где будет пустое окошко: в ответе или внутри выражения.</p>
+          <div class="choice"><label><input type="checkbox" id="addNoCarry"><span data-i18n="addNoCarry">Сложение без переноса</span></label></div>
+          <div class="choice"><label><input type="checkbox" id="subNoBorrow"><span data-i18n="subNoBorrow">Вычитание без займа</span></label></div>
+        </div>
+
+        <div class="section">
+          <div class="section-title" data-i18n="rangesTitle">Диапазоны чисел</div>
+          <div class="select-wrap"><label for="presetRange" data-i18n="presetRangeLabel">Быстрый диапазон для всех операций</label><select id="presetRange"><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option><option value="100">100</option></select></div>
+          <p class="mini" data-i18n="presetHint">Этот дропдаун одним кликом ставит общий предел для всех действий.</p>
+          <div class="op-grid">
+            <div class="select-wrap"><label for="addMax" data-i18n="opAdd">Сложение</label><select id="addMax" data-range-select><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option><option value="100">100</option></select></div>
+            <div class="select-wrap"><label for="subMax" data-i18n="opSub">Вычитание</label><select id="subMax" data-range-select><option value="10">10</option><option value="20" selected>20</option><option value="50">50</option><option value="100">100</option></select></div>
+            <div class="select-wrap"><label for="mulMax" data-i18n="opMul">Умножение</label><select id="mulMax" data-range-select><option value="5">5</option><option value="10" selected>10</option><option value="12">12</option><option value="20">20</option></select></div>
+            <div class="select-wrap"><label for="divMax" data-i18n="opDiv">Деление</label><select id="divMax" data-range-select><option value="5">5</option><option value="10" selected>10</option><option value="12">12</option><option value="20">20</option></select></div>
+          </div>
+        </div>
+
+        <div class="section two-col">
+          <div class="section-title" data-i18n="sheetTitle">Лист</div>
+          <div class="field"><label for="problemCount" data-i18n="problemCountLabel">Количество примеров на странице</label><input id="problemCount" type="number" min="4" max="120" step="1" value="30"></div>
+          <div class="field"><label for="columns" data-i18n="columnsLabel">Количество колонок</label><input id="columns" type="number" min="1" max="5" step="1" value="3"></div>
+          <div class="field"><div class="label-row"><label for="pageCount" data-i18n="pageCountLabel">Количество страниц</label><button class="tip" type="button" id="pageCountTipBtn" aria-label="Tip" title="Tip">i</button><span class="tip-content" data-i18n="previewNote">Можно создать сразу несколько разных страниц для разных учеников. Каждая страница генерируется отдельно.</span></div><input id="pageCount" type="number" min="1" max="50" step="1" value="1"></div>
+          <div class="field"><div class="label-row"><label for="seed" data-i18n="seedLabel">Seed</label><button class="tip" type="button" id="seedTipBtn" aria-label="Tip" title="Tip">i</button><span class="tip-content" data-i18n="seedTip">Одинаковый seed (код) даёт одинаковые листы. Удобно, чтобы распечатать то же самое снова или поделиться ссылкой.</span></div><input id="seed" type="text" inputmode="text" autocomplete="off" placeholder="e.g. class-a-1"></div>
+        </div>
+
+        <div class="buttons">
+          <button class="btn btn-primary" type="button" id="generateBtn" data-i18n="generateBtn">Сгенерировать заново</button>
+          <div class="btn-row">
+            <button class="btn btn-secondary" type="button" id="printBtn" data-i18n="printBtn">Печать A4</button>
+            <button class="btn btn-secondary" type="button" id="pdfBtn" data-i18n="pdfBtn">Экспорт PDF</button>
+          </div>
+          <div class="btn-row">
+            <button class="btn btn-secondary" type="button" id="copyLinkBtn" data-i18n="copyLinkBtn">Ссылка</button>
+            <button class="btn btn-secondary" type="button" id="resetBtn" data-i18n="resetBtn">Сбросить настройки</button>
+          </div>
+          <p class="hint" data-i18n="buttonsHint">Настройки сохраняются в браузере автоматически. Для PDF откроется отдельное окно, где можно выбрать “Сохранить как PDF”.</p>
+          <p class="status" id="statusText"></p>
+        </div>
+      </aside>
+
+      <section class="panel worksheet">
+        <div class="worksheet-head">
+          <div>
+            <h2 data-i18n="previewTitle">Предпросмотр листов</h2>
+            <div class="worksheet-meta" id="globalMeta"></div>
+          </div>
+        </div>
+        <div class="worksheets" id="worksheets"></div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const STORAGE_KEY = 'worksheet-generator-settings-v8';
+    const root = document.documentElement;
+    const worksheets = document.getElementById('worksheets');
+    const globalMeta = document.getElementById('globalMeta');
+    const generateBtn = document.getElementById('generateBtn');
+    const printBtn = document.getElementById('printBtn');
+    const pdfBtn = document.getElementById('pdfBtn');
+    const copyLinkBtn = document.getElementById('copyLinkBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const themeBtn = document.getElementById('themeBtn');
+    const langBtn = document.getElementById('langBtn');
+    const statusText = document.getElementById('statusText');
+    const columnsInput = document.getElementById('columns');
+    const countInput = document.getElementById('problemCount');
+    const pageCountInput = document.getElementById('pageCount');
+    const termCountInput = document.getElementById('termCount');
+    const allowNegativeInput = document.getElementById('allowNegative');
+    const blankModeInput = document.getElementById('blankMode');
+    const addNoCarryInput = document.getElementById('addNoCarry');
+    const subNoBorrowInput = document.getElementById('subNoBorrow');
+    const presetRangeInput = document.getElementById('presetRange');
+    const addMaxInput = document.getElementById('addMax');
+    const subMaxInput = document.getElementById('subMax');
+    const mulMaxInput = document.getElementById('mulMax');
+    const divMaxInput = document.getElementById('divMax');
+    const seedInput = document.getElementById('seed');
+    const seedTipBtn = document.getElementById('seedTipBtn');
+    const pageCountTipBtn = document.getElementById('pageCountTipBtn');
+    const rangeSelects = [...document.querySelectorAll('[data-range-select]')];
+    const operationInputs = () => [...document.querySelectorAll('input[name="operation"]:checked')].map(input => input.value);
+    const clamp = (value, min, max) => Math.max(min, Math.min(max, value));
+    const rand = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+    const sample = (items) => items[rand(0, items.length - 1)];
+    const shuffle = (items) => {
+      const arr = [...items];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = rand(0, i);
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    };
+    let lastFixedTermCount = 2;
+    let customTitle = '';
+    let showStudentLine = true;
+    let currentLang = 'ru';
+    let lastState = null;
+    let lastPages = [];
+
+    const translations = {
+      ru: {
+        heroTitle: 'Генератор школьных примеров', heroText: 'Можно выбрать язык интерфейса, тему, диапазоны по операциям и сразу сгенерировать несколько разных страниц для целого класса.', settingsTitle: 'Параметры', operationsTitle: 'Операции', opAdd: 'Сложение', opSub: 'Вычитание', opMul: 'Умножение', opDiv: 'Деление', structureTitle: 'Структура примера', termCountLabel: 'Количество чисел в выражении', terms2: '2 числа', terms3: '3 числа', allowNegative: 'Разрешить отрицательный ответ', blankOnlyAnswer: 'Пустое место только в ответе', structureHint: 'Если галочка про ответ включена, пустое поле будет стоять только после знака равно.', rangesTitle: 'Диапазоны чисел', presetRangeLabel: 'Быстрый диапазон для всех операций', presetHint: 'Этот дропдаун одним кликом ставит общий предел для всех действий.', sheetTitle: 'Лист', problemCountLabel: 'Количество примеров на странице', columnsLabel: 'Количество колонок', pageCountLabel: 'Количество страниц', generateBtn: 'Сгенерировать заново', printBtn: 'Печать A4', pdfBtn: 'Экспорт PDF', mixBtnOff: 'Только случайные', mixBtnOn: '2 и 3 числа вперемешку', resetBtn: 'Сбросить настройки', buttonsHint: 'Настройки сохраняются в браузере автоматически. Для PDF откроется отдельное окно, где можно выбрать “Сохранить как PDF”.', previewTitle: 'Предпросмотр листов', previewNote: 'Можно создать сразу несколько разных страниц для разных учеников. Каждая страница генерируется отдельно.', previewPage: 'Страница', name: 'Имя', date: 'Дата', pageXofY: (x,y) => `Страница ${x} из ${y}`, examples: n => `${n} примеров`, columns: n => `${n} колонки`, termsFixed: n => `${n} числа в выражении`, termsMixed: '2 и 3 числа вперемешку', ranges: r => `Диапазоны: +${r.add} −${r.sub} ×${r.mul} ÷${r.div}`, negativesOn: 'Отрицательные ответы разрешены', negativesOff: 'Без отрицательных ответов', blankAnswerOnly: 'Пустое место только в ответе', blankRandom: 'Пустое место случайное', noOperation: 'Нужно отметить хотя бы одно действие: сложение, вычитание, умножение или деление.', selectOne: 'Нужно выбрать действие', footnote: ''
+      },
+      en: {
+        heroTitle: 'School Worksheet Generator', heroText: 'You can switch the interface language, theme, operation ranges, and generate multiple different pages for a whole class at once.', settingsTitle: 'Settings', operationsTitle: 'Operations', opAdd: 'Addition', opSub: 'Subtraction', opMul: 'Multiplication', opDiv: 'Division', structureTitle: 'Problem structure', termCountLabel: 'Numbers in each expression', terms2: '2 numbers', terms3: '3 numbers', allowNegative: 'Allow negative answers', blankOnlyAnswer: 'Blank only in the answer', structureHint: 'If this option is enabled, the blank will appear only after the equals sign.', rangesTitle: 'Number ranges', presetRangeLabel: 'Quick range for all operations', presetHint: 'This dropdown applies a shared limit to all operations with one click.', sheetTitle: 'Page', problemCountLabel: 'Problems per page', columnsLabel: 'Columns', pageCountLabel: 'Number of pages', generateBtn: 'Generate again', printBtn: 'Print A4', pdfBtn: 'Export PDF', mixBtnOff: 'Random only', mixBtnOn: 'Mix 2 and 3 numbers', resetBtn: 'Reset settings', buttonsHint: 'Settings are saved in the browser automatically. For PDF, a separate print window will open so you can choose “Save as PDF”.', previewTitle: 'Worksheet preview', previewNote: 'You can generate several different pages for different students. Each page is generated separately.', previewPage: 'Page', name: 'Name', date: 'Date', pageXofY: (x,y) => `Page ${x} of ${y}`, examples: n => `${n} problems`, columns: n => `${n} columns`, termsFixed: n => `${n} numbers in each expression`, termsMixed: 'Mixed 2 and 3 numbers', ranges: r => `Ranges: +${r.add} −${r.sub} ×${r.mul} ÷${r.div}`, negativesOn: 'Negative answers allowed', negativesOff: 'No negative answers', blankAnswerOnly: 'Blank only in the answer', blankRandom: 'Blank in random place', noOperation: 'Select at least one operation: addition, subtraction, multiplication, or division.', selectOne: 'Select at least one operation', footnote: ''
+      }
+    };
+
+    translations.ru.termsMix = 'Случайно (2 или 3)';
+    translations.en.termsMix = 'Random (2 or 3)';
+    translations.ru.blankModeLabel = 'Где пустое место';
+    translations.en.blankModeLabel = 'Blank position';
+    translations.ru.blankModeAnswer = 'Только ответ';
+    translations.en.blankModeAnswer = 'Answer only';
+    translations.ru.blankModeRandom = 'Случайно (любое место)';
+    translations.en.blankModeRandom = 'Random (anywhere)';
+    translations.ru.blankModeOperand = 'Случайно (только числа)';
+    translations.en.blankModeOperand = 'Random (numbers only)';
+    translations.ru.blankModeFirst = 'Первое число';
+    translations.en.blankModeFirst = 'First number';
+    translations.ru.blankModeMiddle = 'Среднее число';
+    translations.en.blankModeMiddle = 'Middle number';
+    translations.ru.blankModeHint = 'Выберите, где будет пустое окошко: в ответе или внутри выражения.';
+    translations.en.blankModeHint = 'Choose where the blank appears: in the answer or inside the expression.';
+    translations.ru.blankOperandOnly = 'Пустое место только в числах';
+    translations.en.blankOperandOnly = 'Blank in numbers only';
+    translations.ru.blankFirst = 'Пустое место в первом числе';
+    translations.en.blankFirst = 'Blank in first number';
+    translations.ru.blankMiddle = 'Пустое место в среднем числе';
+    translations.en.blankMiddle = 'Blank in middle number';
+    translations.ru.addNoCarry = 'Сложение без переноса';
+    translations.en.addNoCarry = 'No-carry addition';
+    translations.ru.subNoBorrow = 'Вычитание без займа';
+    translations.en.subNoBorrow = 'No-borrow subtraction';
+    translations.ru.seedLabel = 'Seed (код)';
+    translations.en.seedLabel = 'Seed';
+    translations.ru.seedTip = 'Как использовать Seed: введите любой текст (например, class-2a-2026-05-18) и нажмите “Сгенерировать заново”. Такой же seed + те же настройки = такой же набор примеров. Можно поделиться, нажав “Скопировать ссылку”.';
+    translations.en.seedTip = 'How to use Seed: enter any text (e.g. class-2a-2026-05-18) and press “Generate again”. Same seed + same settings = same worksheet set. Share it via “Copy link”.';
+    translations.ru.showStudentLine = 'Имя и дата';
+    translations.en.showStudentLine = 'Name and date';
+    translations.ru.editTitle = 'Изменить заголовок';
+    translations.en.editTitle = 'Edit title';
+    translations.ru.editTitlePrompt = 'Заголовок листа:';
+    translations.en.editTitlePrompt = 'Worksheet title:';
+    translations.ru.copyLinkBtn = 'Скопировать ссылку';
+    translations.en.copyLinkBtn = 'Copy link';
+    translations.ru.linkCopied = 'Ссылка скопирована.';
+    translations.en.linkCopied = 'Link copied.';
+    translations.ru.langLabel = 'RU';
+    translations.en.langLabel = 'EN';
+    translations.ru.saved = 'Сохранено.';
+    translations.en.saved = 'Saved.';
+    translations.ru.printStatus = 'Открыто окно печати.';
+    translations.en.printStatus = 'Print window opened.';
+    translations.ru.pdfStatus = 'Открыто окно PDF.';
+    translations.en.pdfStatus = 'PDF window opened.';
+    translations.ru.worksheetTitle = 'Лист с примерами';
+    translations.en.worksheetTitle = 'Math worksheet';
+
+    const opLabels = { add: () => t('opAdd'), sub: () => t('opSub'), mul: () => t('opMul'), div: () => t('opDiv') };
+    const operatorSymbols = { add: '+', sub: '−', mul: '×', div: '÷' };
+
+    function t(key, ...args) {
+      const value = translations[currentLang][key];
+      return typeof value === 'function' ? value(...args) : value;
+    }
+
+    function setStatus(messageKey) {
+      statusText.textContent = messageKey ? t(messageKey) : '';
+    }
+
+    function updateLanguageUI() {
+      document.documentElement.lang = currentLang;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.dataset.i18n;
+        el.textContent = t(key);
+      });
+      langBtn.textContent = t('langLabel');
+      seedInput.title = t('seedTip');
+      seedTipBtn.setAttribute('aria-label', t('seedTip'));
+      seedTipBtn.title = t('seedTip');
+      pageCountTipBtn.setAttribute('aria-label', t('previewNote'));
+      pageCountTipBtn.title = t('previewNote');
+      themeBtn.setAttribute('aria-label', currentLang === 'ru' ? 'Переключить тему' : 'Toggle theme');
+      langBtn.setAttribute('aria-label', currentLang === 'ru' ? 'Переключить язык' : 'Switch language');
+      renderWorksheet(false);
+    }
+
+    function saveSettings() {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(captureState()));
+      setStatus('saved');
+    }
+
+    function loadSettings() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    }
+
+    function urlParamsFromState(state) {
+      const params = new URLSearchParams();
+      params.set('ops', state.operations.join(','));
+      params.set('cols', String(state.columns));
+      params.set('count', String(state.count));
+      params.set('pages', String(state.pageCount));
+      params.set('term', state.randomizeTerms ? 'mix' : String(state.baseTermCount));
+      params.set('neg', state.allowNegative ? '1' : '0');
+      params.set('blank', state.blankMode || 'random');
+      params.set('addMax', String(state.ranges.add));
+      params.set('subMax', String(state.ranges.sub));
+      params.set('mulMax', String(state.ranges.mul));
+      params.set('divMax', String(state.ranges.div));
+      params.set('noCarry', state.addNoCarry ? '1' : '0');
+      params.set('noBorrow', state.subNoBorrow ? '1' : '0');
+      params.set('line', state.showStudentLine ? '1' : '0');
+      if (state.customTitle) params.set('title', state.customTitle);
+      if (state.seed) params.set('seed', state.seed);
+      params.set('lang', state.lang);
+      params.set('theme', state.theme);
+      return params;
+    }
+
+    function stateFromUrlParams() {
+      const params = new URLSearchParams(window.location.search);
+      if (!params.size) return null;
+      if (!params.has('ops') && !params.has('cols') && !params.has('count') && !params.has('pages')) return null;
+      const ops = String(params.get('ops') || '').split(',').map(s => s.trim()).filter(Boolean);
+      const term = String(params.get('term') || '');
+      const randomizeTerms = term === 'mix';
+      return {
+        operations: ops.length ? ops : operationInputs(),
+        columns: clamp(parseInt(params.get('cols'), 10) || 3, 1, 5),
+        count: clamp(parseInt(params.get('count'), 10) || 30, 4, 120),
+        pageCount: clamp(parseInt(params.get('pages'), 10) || 1, 1, 50),
+        baseTermCount: randomizeTerms ? 2 : clamp(parseInt(term, 10) || 2, 2, 3),
+        randomizeTerms,
+        allowNegative: params.get('neg') === '1',
+        blankMode: params.get('blank') || 'random',
+        addNoCarry: params.get('noCarry') === '1',
+        subNoBorrow: params.get('noBorrow') === '1',
+        showStudentLine: params.get('line') !== '0',
+        customTitle: String(params.get('title') || '').trim(),
+        seed: params.get('seed') || '',
+        lang: params.get('lang') || currentLang,
+        theme: params.get('theme') || (root.getAttribute('data-theme') || 'light'),
+        ranges: {
+          add: parseInt(params.get('addMax'), 10) || 20,
+          sub: parseInt(params.get('subMax'), 10) || 20,
+          mul: parseInt(params.get('mulMax'), 10) || 10,
+          div: parseInt(params.get('divMax'), 10) || 10
+        }
+      };
+    }
+
+    function captureState() {
+      const termValue = String(termCountInput.value);
+      const fixedBase = clamp(parseInt(termValue, 10) || lastFixedTermCount || 2, 2, 3);
+      const termRandom = termValue === 'mix';
+      if (termValue !== 'mix') lastFixedTermCount = fixedBase;
+      return {
+        operations: operationInputs(),
+        columns: clamp(parseInt(columnsInput.value, 10) || 3, 1, 5),
+        count: clamp(parseInt(countInput.value, 10) || 30, 4, 120),
+        pageCount: clamp(parseInt(pageCountInput.value, 10) || 1, 1, 50),
+        baseTermCount: fixedBase,
+        allowNegative: allowNegativeInput.checked,
+        blankMode: String(blankModeInput.value || 'random'),
+        addNoCarry: addNoCarryInput.checked,
+        subNoBorrow: subNoBorrowInput.checked,
+        seed: String(seedInput.value || '').trim(),
+        showStudentLine,
+        customTitle: String(customTitle || '').trim(),
+        theme: root.getAttribute('data-theme') || 'light',
+        randomizeTerms: termRandom,
+        lang: currentLang,
+        ranges: { add: parseInt(addMaxInput.value, 10), sub: parseInt(subMaxInput.value, 10), mul: parseInt(mulMaxInput.value, 10), div: parseInt(divMaxInput.value, 10) }
+      };
+    }
+
+    function applyState(state) {
+      if (!state) return;
+      document.querySelectorAll('input[name="operation"]').forEach(input => input.checked = state.operations?.includes(input.value));
+      columnsInput.value = state.columns ?? 3;
+      countInput.value = state.count ?? 30;
+      pageCountInput.value = state.pageCount ?? 1;
+      lastFixedTermCount = clamp(parseInt(state.baseTermCount, 10) || 2, 2, 3);
+      termCountInput.value = state.randomizeTerms ? 'mix' : String(lastFixedTermCount);
+      allowNegativeInput.checked = !!state.allowNegative;
+      blankModeInput.value = state.blankMode || (state.blankOnlyAnswer ? 'answer' : 'random');
+      addNoCarryInput.checked = !!state.addNoCarry;
+      subNoBorrowInput.checked = !!state.subNoBorrow;
+      seedInput.value = state.seed || '';
+      customTitle = String(state.customTitle || '').trim();
+      showStudentLine = state.showStudentLine !== false;
+      currentLang = state.lang || 'ru';
+      addMaxInput.value = String(state.ranges?.add ?? 20);
+      subMaxInput.value = String(state.ranges?.sub ?? 20);
+      mulMaxInput.value = String(state.ranges?.mul ?? 10);
+      divMaxInput.value = String(state.ranges?.div ?? 10);
+      root.setAttribute('data-theme', state.theme || 'light');
+      themeBtn.innerHTML = (state.theme || 'light') === 'dark' ? '<span aria-hidden="true">☀</span>' : '<span aria-hidden="true">☾</span>';
+      updateLanguageUI();
+    }
+
+    function toggleTheme() {
+      const next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      root.setAttribute('data-theme', next);
+      themeBtn.innerHTML = next === 'dark' ? '<span aria-hidden="true">☀</span>' : '<span aria-hidden="true">☾</span>';
+      saveSettings();
+    }
+
+    function toggleLanguage() {
+      currentLang = currentLang === 'ru' ? 'en' : 'ru';
+      updateLanguageUI();
+      saveSettings();
+    }
+
+    function selectedTermCount() {
+      if (String(termCountInput.value) === 'mix') return sample([2, 3]);
+      return clamp(parseInt(termCountInput.value, 10) || 2, 2, 3);
+    }
+
+    function balancedSequence(rng, items, count) {
+      const base = Math.floor(count / items.length);
+      const remainder = count % items.length;
+      const sequence = [];
+      items.forEach(item => sequence.push(...Array.from({ length: base }, () => item)));
+      shuffleFrom(rng, items).slice(0, remainder).forEach(item => sequence.push(item));
+      return shuffleFrom(rng, sequence);
+    }
+
+    function termCountSequence(rng, baseTermCount, randomize, count) {
+      if (!randomize) return Array.from({ length: count }, () => baseTermCount);
+      const twos = Math.floor(count / 2);
+      const threes = count - twos;
+      return shuffleFrom(rng, [...Array.from({ length: twos }, () => 2), ...Array.from({ length: threes }, () => 3)]);
+    }
+
+    function problemSignature(problem) {
+      return `${problem.type}|${problem.items.map(item => item.value).join(',')}`;
+    }
+
+    function xmur3(str) {
+      let h = 1779033703 ^ str.length;
+      for (let i = 0; i < str.length; i++) {
+        h = Math.imul(h ^ str.charCodeAt(i), 3432918353);
+        h = (h << 13) | (h >>> 19);
+      }
+      return () => {
+        h = Math.imul(h ^ (h >>> 16), 2246822507);
+        h = Math.imul(h ^ (h >>> 13), 3266489909);
+        return (h ^= h >>> 16) >>> 0;
+      };
+    }
+
+    function mulberry32(a) {
+      return () => {
+        let t = (a += 0x6D2B79F5);
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+
+    function makeRng(seed) {
+      if (!seed) return Math.random;
+      const seedGen = xmur3(seed);
+      return mulberry32(seedGen());
+    }
+
+    function randFrom(rng, min, max) {
+      return Math.floor(rng() * (max - min + 1)) + min;
+    }
+
+    function sampleFrom(rng, items) {
+      return items[randFrom(rng, 0, items.length - 1)];
+    }
+
+    function shuffleFrom(rng, items) {
+      const arr = [...items];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = randFrom(rng, 0, i);
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function blankIndexFor(termCount, length, blankMode, rng) {
+      if (blankMode === 'answer') return length - 1;
+      if (blankMode === 'first') return 0;
+      if (blankMode === 'middle') return Math.min(termCount - 1, Math.max(0, Math.floor(termCount / 2)));
+      if (blankMode === 'operand') return randFrom(rng, 0, Math.max(0, termCount - 1));
+      return randFrom(rng, 0, length - 1);
+    }
+
+    function valuesWithBlank(values, termCount, blankMode, rng) {
+      const blankIndex = blankIndexFor(termCount, values.length, blankMode, rng);
+      return values.map((value, index) => ({ value, blank: index === blankIndex }));
+    }
+
+    function generateNoCarryTerms(termCount, maxValue, rng) {
+      const digits = String(maxValue).length;
+      const pow10 = Array.from({ length: digits }, (_, idx) => 10 ** idx);
+      for (let attempt = 0; attempt < 60; attempt++) {
+        const terms = Array.from({ length: termCount }, () => 0);
+        for (let pos = 0; pos < digits; pos++) {
+          let remaining = 9;
+          for (let t = 0; t < termCount; t++) {
+            const d = randFrom(rng, 0, remaining);
+            terms[t] += d * pow10[pos];
+            remaining -= d;
+          }
+        }
+        if (terms.every(v => v >= 1 && v <= maxValue)) return terms;
+      }
+      return Array.from({ length: termCount }, () => randFrom(rng, 1, maxValue));
+    }
+
+    function generateAddition(rng, termCount, maxValue, blankMode, noCarry) {
+      const terms = noCarry ? generateNoCarryTerms(termCount, maxValue, rng) : Array.from({ length: termCount }, () => randFrom(rng, 1, maxValue));
+      const result = terms.reduce((sum, value) => sum + value, 0);
+      return { type: 'add', items: valuesWithBlank([...terms, result], termCount, blankMode, rng) };
+    }
+
+    function generateNoBorrowSubtractionTerms(termCount, maxValue, rng) {
+      const first = randFrom(rng, 1, maxValue);
+      const digits = String(first).length;
+      const pow10 = Array.from({ length: digits }, (_, idx) => 10 ** idx);
+      const aDigits = [];
+      let tmp = first;
+      for (let i = 0; i < digits; i++) { aDigits.push(tmp % 10); tmp = Math.floor(tmp / 10); }
+      for (let attempt = 0; attempt < 40; attempt++) {
+        const bDigits = aDigits.map(d => randFrom(rng, 0, d));
+        if (termCount === 2) {
+          const second = bDigits.reduce((acc, d, idx) => acc + d * pow10[idx], 0);
+          if (second >= 1 && second <= maxValue) return [first, second];
+        } else {
+          const cDigits = aDigits.map((d, idx) => randFrom(rng, 0, d - bDigits[idx]));
+          const second = bDigits.reduce((acc, d, idx) => acc + d * pow10[idx], 0);
+          const third = cDigits.reduce((acc, d, idx) => acc + d * pow10[idx], 0);
+          if (second >= 1 && second <= maxValue && third >= 1 && third <= maxValue) return [first, second, third];
+        }
+      }
+      return Array.from({ length: termCount }, () => randFrom(rng, 1, maxValue));
+    }
+
+    function generateSubtraction(rng, termCount, maxValue, allowNegative, blankMode, noBorrow) {
+      if (noBorrow) {
+        const terms = generateNoBorrowSubtractionTerms(termCount, maxValue, rng);
+        const result = terms.slice(1).reduce((acc, v) => acc - v, terms[0]);
+        return { type: 'sub', items: valuesWithBlank([...terms, result], termCount, blankMode, rng) };
+      }
+      if (termCount === 2) {
+        let first = randFrom(rng, 1, maxValue), second = randFrom(rng, 1, maxValue);
+        if (!allowNegative && second > first) [first, second] = [second, first];
+        return { type: 'sub', items: valuesWithBlank([first, second, first - second], termCount, blankMode, rng) };
+      }
+      let first = randFrom(rng, 1, maxValue), second = randFrom(rng, 1, maxValue), third = randFrom(rng, 1, maxValue);
+      if (!allowNegative) {
+        const pool = [first, second, third].sort((a,b) => b - a);
+        first = Math.min(maxValue, pool[0] + pool[1]);
+        second = Math.min(second, first);
+        third = Math.min(third, Math.max(0, first - second));
+      }
+      return { type: 'sub', items: valuesWithBlank([first, second, third, first - second - third], termCount, blankMode, rng) };
+    }
+
+    function generateMultiplication(rng, termCount, maxValue, blankMode) {
+      const factorMax = clamp(maxValue, 2, 20);
+      const terms = Array.from({ length: termCount }, () => randFrom(rng, 1, factorMax));
+      return { type: 'mul', items: valuesWithBlank([...terms, terms.reduce((p, v) => p * v, 1)], termCount, blankMode, rng) };
+    }
+
+    function generateDivision(rng, termCount, maxValue, blankMode) {
+      const factorMax = clamp(maxValue, 2, 20);
+      if (termCount === 2) {
+        const divisor = randFrom(rng, 1, factorMax), quotient = randFrom(rng, 1, factorMax), dividend = divisor * quotient;
+        return { type: 'div', items: valuesWithBlank([dividend, divisor, quotient], termCount, blankMode, rng) };
+      }
+      const divisorA = randFrom(rng, 1, factorMax), divisorB = randFrom(rng, 1, factorMax), quotient = randFrom(rng, 1, factorMax), dividend = divisorA * divisorB * quotient;
+      return { type: 'div', items: valuesWithBlank([dividend, divisorA, divisorB, quotient], termCount, blankMode, rng) };
+    }
+
+    function generateProblem(rng, type, termCount, state) {
+      if (type === 'add') return generateAddition(rng, termCount, state.ranges.add, state.blankMode, state.addNoCarry);
+      if (type === 'sub') return generateSubtraction(rng, termCount, state.ranges.sub, state.allowNegative, state.blankMode, state.subNoBorrow);
+      if (type === 'mul') return generateMultiplication(rng, termCount, state.ranges.mul, state.blankMode);
+      return generateDivision(rng, termCount, state.ranges.div, state.blankMode);
+    }
+
+    function buildExpression(problem) {
+      const parts = [];
+      const lastIndex = problem.items.length - 1;
+      problem.items.forEach((item, index) => {
+        if (item.blank) parts.push(`<span class="blank" aria-label="blank">${item.value}</span>`);
+        else parts.push(`<span class="num">${item.value}</span>`);
+        if (index < lastIndex - 1) parts.push(`<span class="operator">${operatorSymbols[problem.type]}</span>`);
+        if (index === lastIndex - 1) parts.push('<span class="equals">=</span>');
+      });
+      return parts.join('');
+    }
+
+    function blankModeChip(blankMode) {
+      if (blankMode === 'answer') return t('blankAnswerOnly');
+      if (blankMode === 'operand') return t('blankOperandOnly');
+      if (blankMode === 'first') return t('blankFirst');
+      if (blankMode === 'middle') return t('blankMiddle');
+      return t('blankRandom');
+    }
+
+    function pageMetaHtml(state, pageIndex) {
+      const operations = state.operations.map(key => opLabels[key]()).join(' · ');
+      const chips = [
+        t('pageXofY', pageIndex + 1, state.pageCount),
+        t('examples', state.count),
+        t('columns', state.columns),
+        state.randomizeTerms ? t('termsMixed') : t('termsFixed', state.baseTermCount),
+        operations,
+        t('ranges', state.ranges),
+        state.allowNegative ? t('negativesOn') : t('negativesOff'),
+        blankModeChip(state.blankMode)
+      ];
+      return chips.map(text => `<span class="chip">${text}</span>`).join('');
+    }
+
+    function expressionUnits(problem) {
+      const termCount = Math.max(1, problem.items.length - 1);
+      let units = 0;
+      problem.items.forEach((item, index) => {
+        const digits = String(item.value).replace('-', '').length;
+        const base = item.blank ? 4 : digits;
+        units += base;
+        if (index < termCount - 1) units += 1;
+        if (index === termCount - 1) units += 1;
+      });
+      return units;
+    }
+
+    function expressionScale(problem, columns) {
+      const units = expressionUnits(problem);
+      const maxUnits = clamp(16 - (columns - 1) * 2, 8, 16);
+      return clamp(maxUnits / Math.max(1, units), 0.62, 1);
+    }
+
+    function makeWorksheetHtml(pageProblems, state, pageIndex) {
+      const problemsHtml = pageProblems.map((problem, idx) => {
+        const scale = expressionScale(problem, state.columns);
+        return `<article class="problem" aria-label="Problem ${idx + 1}"><div class="problem-inner" style="--scale:${scale.toFixed(3)}">${buildExpression(problem)}</div></article>`;
+      }).join('');
+      const title = state.customTitle || t('worksheetTitle');
+      const studentLine = state.showStudentLine ? `<div class="student-line"><div class="line-box"><span>${t('name')}</span><span class="write-line" aria-hidden="true"></span></div><div class="line-box"><span>${t('date')}</span><span class="write-line" aria-hidden="true"></span></div></div>` : '';
+      const editLabel = t('editTitle');
+      const editBtn = `<button class="title-edit no-print" type="button" data-action="edit-title" aria-label="${editLabel}" title="${editLabel}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button>`;
+      const lineToggle = `<label class="inline-toggle no-print"><input type="checkbox" data-action="toggle-student-line" ${state.showStudentLine ? 'checked' : ''}><span>${t('showStudentLine')}</span></label>`;
+      return `<section class="panel worksheet"><div class="worksheet-head"><div class="worksheet-title"><h2 data-role="worksheet-title">${title}</h2>${editBtn}</div><div class="worksheet-actions no-print">${lineToggle}</div></div>${studentLine}<div class="grid" style="--columns:${state.columns}">${problemsHtml}</div></section>`;
+    }
+
+    function renderGlobalMeta(state) {
+      const summary = [
+        `<span class="chip">${t('examples', state.count)}</span>`,
+        `<span class="chip">${t('columns', state.columns)}</span>`,
+        `<span class="chip">${t('pageCountLabel')}: ${state.pageCount}</span>`
+      ];
+      globalMeta.innerHTML = summary.join('');
+    }
+
+    function renderWorksheet(save = true) {
+      const state = captureState();
+      if (!state.operations.length) {
+        globalMeta.innerHTML = `<span class="chip">${t('selectOne')}</span>`;
+        worksheets.innerHTML = `<div class="empty-state">${t('noOperation')}</div>`;
+        lastState = state;
+        lastPages = [];
+        if (save) saveSettings();
+        return;
+      }
+      const seenAll = new Set();
+      const pages = Array.from({ length: state.pageCount }, (_, pageIndex) => {
+        const rng = makeRng(state.seed ? `${state.seed}|${pageIndex + 1}` : '');
+        const opSeq = balancedSequence(rng, state.operations, state.count);
+        const termSeq = termCountSequence(rng, state.baseTermCount, state.randomizeTerms, state.count);
+        return Array.from({ length: state.count }, (_, idx) => {
+          const type = opSeq[idx];
+          const termCount = termSeq[idx];
+          let problem = null;
+          for (let attempt = 0; attempt < 60; attempt++) {
+            const candidate = generateProblem(rng, type, termCount, state);
+            const signature = problemSignature(candidate);
+            if (!seenAll.has(signature)) {
+              seenAll.add(signature);
+              problem = candidate;
+              break;
+            }
+            problem = candidate;
+          }
+          if (problem) seenAll.add(problemSignature(problem));
+          return problem;
+        });
+      });
+      worksheets.innerHTML = pages.map((pageProblems, pageIndex) => makeWorksheetHtml(pageProblems, state, pageIndex)).join('');
+      renderGlobalMeta(state);
+      lastState = state;
+      lastPages = pages;
+      if (save) saveSettings();
+    }
+
+    function printableHtml(documentTitle, sheetTitle) {
+      const sheets = lastPages.map((pageProblems, pageIndex) => {
+        const problemsHtml = pageProblems.map(problem => `<article class="problem"><div class="problem-inner" style="--scale:${expressionScale(problem, lastState.columns).toFixed(3)}">${buildExpression(problem)}</div></article>`).join('');
+        const studentLine = lastState.showStudentLine ? `<div class="student-line"><div class="line-box"><span>${t('name')}</span><span class="write-line"></span></div><div class="line-box"><span>${t('date')}</span><span class="write-line"></span></div></div>` : '';
+        return `<section class="worksheet"><div class="worksheet-head"><div><h2>${sheetTitle}</h2><div class="worksheet-meta">${pageMetaHtml(lastState, pageIndex)}</div></div></div>${studentLine}<div class="grid" style="--columns:${lastState.columns}">${problemsHtml}</div></section>`;
+      }).join('');
+      return `<!DOCTYPE html><html lang="${currentLang}"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${documentTitle}</title><style>
+        :root{--columns:${lastState.columns}}*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:#171717;background:#fff}.wrap{padding:10mm}.worksheet{break-after:page}.worksheet:last-child{break-after:auto}.worksheet-head{display:flex;justify-content:space-between;gap:8mm;border-bottom:1px solid rgba(0,0,0,.18);padding-bottom:5mm;margin-bottom:5mm}h2{margin:0;font-size:18pt;line-height:1.1}.worksheet-meta{display:none}.chip{display:inline-flex;align-items:center;padding:1.5mm 3mm;background:rgba(0,0,0,.06);border-radius:999px;font-size:10pt;font-weight:700}.student-line{display:grid;grid-template-columns:1fr 1fr;gap:4mm;margin-bottom:5mm}.line-box{display:flex;align-items:center;gap:3mm;min-height:12mm;border:1px solid rgba(0,0,0,.16);border-radius:4mm;padding:2.5mm 3mm;color:#5f5f5f;font-size:10pt}.write-line{flex:1;border-bottom:1px solid rgba(0,0,0,.16);height:4mm}.grid{display:grid;grid-template-columns:repeat(var(--columns),minmax(0,1fr));gap:4mm}.problem{min-height:16mm;border:1px solid rgba(0,0,0,.16);border-radius:4mm;display:flex;align-items:center;justify-content:center;break-inside:avoid;padding:2.6mm}.problem-inner{--scale:1;display:flex;align-items:center;justify-content:center;gap:.35em;flex-wrap:nowrap;white-space:nowrap;font-size:15pt;font-weight:700;line-height:1.2;transform:scale(var(--scale));transform-origin:center}.num{min-width:1.2em;text-align:center}.blank{--slot-ch:4;display:inline-flex;align-items:center;justify-content:center;width:calc(var(--slot-ch) * .62em + 1.05rem);min-width:2.1em;height:1.75em;border:2px dashed rgba(0,0,0,.5);border-radius:.55rem;color:transparent}.operator,.equals{color:#0f6c74}.footnote{margin:5mm 0 0;font-size:10pt;color:#5f5f5f}@page{size:A4 portrait;margin:10mm}@media screen{body{background:#ece9e2}.wrap{max-width:210mm;margin:0 auto;background:#fff;min-height:297mm;box-shadow:0 12px 32px rgba(0,0,0,.14)}}
+      </style></head><body><main class="wrap">${sheets}</main><script>window.addEventListener('load',()=>setTimeout(()=>window.print(),150));window.addEventListener('afterprint',()=>setTimeout(()=>window.close(),150));<\/script></body></html>`;
+    }
+
+    function openPrintWindow(mode) {
+      if (!lastState || !lastState.operations.length) renderWorksheet();
+      const printWindow = window.open('', '_blank', 'width=1100,height=900');
+      if (!printWindow) { alert(currentLang === 'ru' ? 'Браузер заблокировал окно печати.' : 'The browser blocked the print window.'); return; }
+      const baseTitle = (lastState?.customTitle || t('worksheetTitle')).trim() || t('worksheetTitle');
+      const documentTitle = mode === 'pdf' ? `${baseTitle} PDF` : baseTitle;
+      printWindow.document.open();
+      printWindow.document.write(printableHtml(documentTitle, baseTitle));
+      printWindow.document.close();
+      setStatus(mode === 'pdf' ? 'pdfStatus' : 'printStatus');
+    }
+
+    function resetSettings() {
+      localStorage.removeItem(STORAGE_KEY);
+      location.reload();
+    }
+
+    worksheets.addEventListener('click', (event) => {
+      const btn = event.target.closest('[data-action="edit-title"]');
+      if (!btn) return;
+      const head = btn.closest('.worksheet-head');
+      const titleEl = head?.querySelector('[data-role="worksheet-title"]');
+      if (!titleEl) return;
+      if (titleEl.isContentEditable) { titleEl.focus(); return; }
+      const initial = (titleEl.textContent || '').trim();
+      let cancelled = false;
+      const onKeyDown = (e) => {
+        if (e.key === 'Enter') { e.preventDefault(); titleEl.blur(); }
+        if (e.key === 'Escape') { e.preventDefault(); cancelled = true; titleEl.textContent = initial; titleEl.blur(); }
+      };
+      titleEl.contentEditable = 'true';
+      titleEl.spellcheck = false;
+      titleEl.addEventListener('keydown', onKeyDown);
+      titleEl.addEventListener('blur', () => {
+        titleEl.removeEventListener('keydown', onKeyDown);
+        titleEl.contentEditable = 'false';
+        if (cancelled) return;
+        const next = (titleEl.textContent || '').trim();
+        customTitle = next ? next : '';
+        renderWorksheet();
+      }, { once: true });
+      titleEl.focus();
+    });
+
+    worksheets.addEventListener('change', (event) => {
+      const input = event.target;
+      if (!(input instanceof HTMLInputElement)) return;
+      if (!input.matches('[data-action="toggle-student-line"]')) return;
+      showStudentLine = input.checked;
+      renderWorksheet();
+    });
+
+    themeBtn.addEventListener('click', toggleTheme);
+    langBtn.addEventListener('click', toggleLanguage);
+    generateBtn.addEventListener('click', () => renderWorksheet());
+    printBtn.addEventListener('click', () => openPrintWindow('print'));
+    pdfBtn.addEventListener('click', () => openPrintWindow('pdf'));
+    copyLinkBtn.addEventListener('click', async () => {
+      const state = captureState();
+      const url = new URL(window.location.href);
+      url.search = urlParamsFromState(state).toString();
+      try {
+        await navigator.clipboard.writeText(url.toString());
+        setStatus('linkCopied');
+      } catch {
+        window.prompt(currentLang === 'ru' ? 'Ссылка:' : 'Link:', url.toString());
+        setStatus('linkCopied');
+      }
+    });
+    resetBtn.addEventListener('click', resetSettings);
+    presetRangeInput.addEventListener('change', e => {
+      const v = String(e.target.value);
+      if (['10','20','50','100'].includes(v)) { addMaxInput.value = v; subMaxInput.value = v; }
+      if (['5','10','12','20'].includes(v)) { mulMaxInput.value = v; divMaxInput.value = v; }
+      else if (v === '50' || v === '100') { mulMaxInput.value = '20'; divMaxInput.value = '20'; }
+      renderWorksheet();
+    });
+    [columnsInput,countInput,pageCountInput,termCountInput,allowNegativeInput,blankModeInput,addNoCarryInput,subNoBorrowInput,seedInput,...rangeSelects,...document.querySelectorAll('input[name="operation"]')].forEach(el => el.addEventListener('change', () => {
+      if (el === termCountInput) {
+        const v = String(termCountInput.value);
+        if (v !== 'mix') lastFixedTermCount = clamp(parseInt(v, 10) || lastFixedTermCount || 2, 2, 3);
+      }
+      renderWorksheet();
+    }));
+
+    const urlState = stateFromUrlParams();
+    const saved = loadSettings();
+    if (urlState) applyState(urlState);
+    else if (saved) applyState(saved);
+    else {
+      if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) { root.setAttribute('data-theme', 'dark'); themeBtn.innerHTML = '<span aria-hidden="true">☀</span>'; }
+      updateLanguageUI();
+    }
+  </script>
+</body>
+</html>
